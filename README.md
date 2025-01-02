@@ -2,6 +2,85 @@
 
 PHP es un lenguaje de programacion de alto nivel, interpretado y de proposito general, especialmente utilizado para el desarrollo de aplicaciones web dinamicas. A lo largo de su evolucion, PHP ha sido utilizado principalmente en el lado del servidor para gestionar bases de datos, autenticar usuarios, y generar contenido dinamico, siendo uno de los lenguajes mas utilizados en el desarrollo de paginas web. Es flexible y potente, permitiendo la integracion con varios sistemas de bases de datos, como MySQL y PostgreSQL, y siendo compatible con diferentes servidores web, como Apache y Nginx.
 
+¿Como se ve un script de php?
+
+```php
+<?php
+// Iniciar la sesión
+session_start();
+
+// Comprobar si el usuario ya está logueado
+if (isset($_SESSION['username'])) {
+    echo "Bienvenido, " . $_SESSION['username'] . "!";
+    echo "<br><a href='logout.php'>Cerrar sesión</a>";
+} else {
+    // Mostrar formulario de inicio de sesión
+    echo "<h2>Iniciar sesión</h2>";
+    echo '<form method="POST" action="login.php">
+            Usuario: <input type="text" name="username"><br>
+            Contraseña: <input type="password" name="password"><br>
+            <input type="submit" value="Iniciar sesión">
+          </form>';
+}
+
+// login.php (para manejar la lógica de autenticación)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Simulamos una base de datos simple para la autenticación
+    $usuarios = [
+        'admin' => '1234',
+        'user1' => 'password1'
+    ];
+
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+
+    // Comprobamos si el usuario y la contraseña son correctos
+    if (array_key_exists($username, $usuarios) && $usuarios[$username] === $password) {
+        // Guardar el nombre de usuario en la sesión
+        $_SESSION['username'] = $username;
+        echo "Bienvenido, " . $username . "!<br>";
+        echo "<a href='index.php'>Ir al inicio</a>";
+    } else {
+        echo "Usuario o contraseña incorrectos.";
+    }
+}
+
+// logout.php (para cerrar la sesión)
+if (isset($_GET['action']) && $_GET['action'] == 'logout') {
+    // Eliminar la sesión y redirigir a la página de inicio
+    session_unset();
+    session_destroy();
+    header("Location: index.php");
+    exit;
+}
+
+// Conexión a la base de datos (usando PDO)
+try {
+    $dsn = 'mysql:host=localhost;dbname=mi_base_de_datos';
+    $usuario = 'root';
+    $contraseña = '';
+    
+    // Crear una nueva instancia PDO
+    $dbh = new PDO($dsn, $usuario, $contraseña);
+
+    // Establecer el modo de error para PDO
+    $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
+    echo "Conexión a la base de datos exitosa!";
+    
+    // Realizar una consulta SQL (seleccionar todos los usuarios)
+    $stmt = $dbh->query("SELECT id, nombre FROM usuarios");
+    
+    // Mostrar los resultados
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        echo "ID: " . $row['id'] . " - Nombre: " . $row['nombre'] . "<br>";
+    }
+} catch (PDOException $e) {
+    echo "Error de conexión: " . $e->getMessage();
+}
+?>
+```
+
 # En que contexto nacio PHP
 
 PHP fue creado en 1993 por Rasmus Lerdorf como un conjunto de herramientas para gestionar paginas web personales. Originalmente, PHP significaba "Personal Home Page", pero luego se renombro a "PHP: Hypertext Preprocessor". En sus primeros dias, PHP solo gestionaba formularios web y permitia mostrar datos en una pagina. Sin embargo, con el tiempo, el lenguaje se fue ampliando, incorporando mas funcionalidades como manejo de bases de datos, manejo de sesiones, y procesamiento de cookies. La version 3, lanzada en 1998, marco un punto de inflexion en la popularidad de PHP, convirtiendose en un lenguaje ampliamente adoptado para el desarrollo web.
